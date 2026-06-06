@@ -111,9 +111,94 @@ export function formatPrice(
   options: { currency?: string; locale?: string } = {},
 ): string {
   const { currency = "USD", locale = "en-US" } = options;
+  const fractionDigits = Number.isInteger(amount) ? 0 : 2;
   return new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
-    maximumFractionDigits: 0,
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
   }).format(amount);
+}
+
+/** Per-month price for a plan at the given billing interval. */
+export function perMonthPrice(plan: Plan, interval: BillingInterval): number {
+  return interval === "annual" ? plan.annualMonthlyPrice : plan.monthlyPrice;
+}
+
+/**
+ * Round a monetary value to whole cents to avoid floating-point dust such as
+ * `0.1 + 0.2`. All proration/seat math runs results through this helper.
+ */
+export function roundCurrency(amount: number): number {
+  return Math.round((amount + Number.EPSILON) * 100) / 100;
+}
+
+/**
+ * Cost for a number of seats over one billing period.
+ * Monthly billing charges per-seat per month; annual billing charges the
+ * discounted per-seat monthly price multiplied by 12 (one year up front).
+ *
+ * @param seats number of seats; values below 1 are clamped to 1.
+ */
+export function seatTotal(
+  plan: Plan,
+  interval: BillingInterval,
+  seats: number,
+): number {
+  const safeSeats = Math.max(1, Math.floor(seats));
+  const perSeat = perMonthPrice(plan, interval);
+  const months = interval === "annual" ? 12 : 1;
+  return roundCurrency(perSeat * safeSeats * months);
+}
+
+/**
+ * Prorated charge for adding seats partway through a billing period.
+ * Only the unused fraction of the period is billed for the new seats.
+ *
+ * @param daysRemaining whole days left in the current period.
+ * @param daysInPeriod total length of the current period in days (default 30).
+ * @param addedSeats number of seats being added (clamped to >= 0).
+ */
+export function prorateUpgrade(
+  plan: Plan,
+  interval: BillingInterval,
+  options: {
+    addedSeats: number;
+    daysRemaining: number;
+    daysInPeriod?: number;
+  },
+): number {
+  const { addedSeats, daysRemaining, daysInPeriod = 30 } = options;
+  if (daysInPeriod <= 0) return 0;
+  const seats = Math.max(0, Math.floor(addedSeats));
+  const remaining = Math.min(Math.max(0, daysRemaining), daysInPeriod);
+  const fraction = remaining / daysInPeriod;
+  const perSeatForPeriod =
+    interval === "annual"
+      ? perMonthPrice(plan, interval) * 12
+      : perMonthPrice(plan, interval);
+  return roundCurrency(perSeatForPeriod * seats * fraction);
+}
+
+/**
+ * Net amount due when switching a single seat from one plan to another in the
+ * middle of a billing period. Returns a positive number for an upgrade (amount
+ * owed) and a negative number for a downgrade (credit), prorated by the unused
+ * fraction of the period.
+ */
+export function proratePlanChange(
+  from: Plan,
+  to: Plan,
+  interval: BillingInterval,
+  options: { daysRemaining: number; daysInPeriod?: number; seats?: number },
+): number {
+  const { daysRemaining, daysInPeriod = 30, seats = 1 } = options;
+  if (daysInPeriod <= 0) return 0;
+  const safeSeats = Math.max(1, Math.floor(seats));
+  const remaining = Math.min(Math.max(0, daysRemaining), daysInPeriod);
+  const fraction = remaining / daysInPeriod;
+  const periodMultiplier = interval === "annual" ? 12 : 1;
+  const fromCost = perMonthPrice(from, interval) * periodMultiplier;
+  const toCost = perMonthPrice(to, interval) * periodMultiplier;
+  return roundCurrency((toCost - fromCost) * safeSeats * fraction);
 }

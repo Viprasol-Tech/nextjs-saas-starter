@@ -1,7 +1,7 @@
 {
   "name": "nextjs-saas-starter",
-  "version": "0.1.0",
-  "description": "Next.js SaaS starter — auth-ready layout, pricing, dashboard shell.",
+  "version": "0.2.0",
+  "description": "Next.js SaaS starter — pricing & billing math, dashboard widgets, usage metering, auth-ready session flow, dark mode.",
   "private": true,
   "license": "MIT",
   "author": "Viprasol Tech Private Limited",
