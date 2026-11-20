@@ -9,7 +9,7 @@
 
   <p>
     <a href="https://github.com/Viprasol-Tech/nextjs-saas-starter/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT" /></a>
-    <a href="https://github.com/Viprasol-Tech/nextjs-saas-starter"><img src="https://img.shields.io/badge/Next.js-14-black.svg?logo=next.js" alt="Next.js 14" /></a>
+    <a href="https://github.com/Viprasol-Tech/nextjs-saas-starter"><img src="https://img.shields.io/badge/Next.js-15-black.svg?logo=next.js" alt="Next.js 15" /></a>
     <a href="https://github.com/Viprasol-Tech/nextjs-saas-starter"><img src="https://img.shields.io/badge/TypeScript-strict-3178c6.svg?logo=typescript&logoColor=white" alt="TypeScript strict" /></a>
     <a href="https://github.com/Viprasol-Tech/nextjs-saas-starter"><img src="https://img.shields.io/badge/tests-123%20passing-brightgreen.svg" alt="123 tests passing" /></a>
     <a href="https://github.com/Viprasol-Tech/nextjs-saas-starter"><img src="https://img.shields.io/badge/version-0.2.0-blueviolet.svg" alt="version 0.2.0" /></a>
@@ -22,7 +22,7 @@ A lightweight, opinionated starting point for a SaaS product built on the Next.j
 
 ## ✨ Features
 
-- 🧱 **App Router (Next.js 14)** — clean root layout with a `(dashboard)` route group.
+- 🧱 **App Router (Next.js 15)** — clean root layout with a `(dashboard)` route group.
 - 💳 **Billing math** in `lib/pricing.ts` — annual savings, per-seat totals, and prorated charges for mid-cycle seat adds and plan changes.
 - 📊 **Dashboard** — stat widgets, usage progress bars, and a recent-activity feed.
 - 📈 **Usage metering** in `lib/usage.ts` — ratios, severity levels, remaining allowance, and attention filtering.
